@@ -38,10 +38,16 @@ Unreleased
 - A small tweak to the HTML report: file paths now use thin spaces around
   slashes to make them easier to read.
 
+- Fix: in unusual cases where a test suite intentionally exhausts the system's
+  file descriptors to test handling errors in ``open()``, coverage.py would
+  fail when trying to open source files, as described in `issue 2091`_.  This
+  is now fixed.
+
 .. _issue 2081: https://github.com/coveragepy/coveragepy/issues/2081
 .. _issue 2083: https://github.com/coveragepy/coveragepy/issues/2083
 .. _pull 2085: https://github.com/coveragepy/coveragepy/pull/2085
 .. _issue 2086: https://github.com/coveragepy/coveragepy/issues/2086
+.. _issue 2091: https://github.com/coveragepy/coveragepy/issues/2091
 
 
 .. start-releases

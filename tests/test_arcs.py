@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import textwrap
+from unittest import mock
 
 import pytest
 
@@ -1947,6 +1948,25 @@ class MiscArcTest(CoverageTest):
             branchz_missing="",
         )
 
+    def test_failing_open(self) -> None:
+        with mock.patch.object(coverage.python, "open", side_effect=IOError("Nope")):
+            self.make_file(
+                "some_branches.py",
+                """\
+                def forelse(seq):
+                    for n in seq:
+                        if n > 5:
+                            break
+                    else:
+                        print('None of the values were greater than 5')
+                    print('Done')
+                forelse([1,2])
+                """,
+            )
+            cov = coverage.Coverage(branch=True)
+            self.start_import_stop(cov, "some_branches")
+            # No assert: the test passes if it didn't raise an exception.
+
 
 class DecoratorArcTest(CoverageTest):
     """Tests of arcs with decorators."""
@@ -2364,8 +2384,6 @@ class LineDataTest(CoverageTest):
     """Tests that line_data gives us what we expect."""
 
     def test_branch(self) -> None:
-        cov = coverage.Coverage(branch=True)
-
         self.make_file(
             "fun1.py",
             """\
@@ -2377,6 +2395,7 @@ class LineDataTest(CoverageTest):
             """,
         )
 
+        cov = coverage.Coverage(branch=True)
         self.start_import_stop(cov, "fun1")
 
         data = cov.get_data()
