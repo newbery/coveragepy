@@ -159,8 +159,12 @@ def create_pth_files(debug: TDebugCtl = NoDebugging()) -> list[Path]:
             if debug.should("patch"):
                 debug.write(f"Writing subprocess .pth file: {str(pth_file)!r}")
             pth_file.write_text(PTH_TEXT, encoding="utf-8")
-        except OSError:  # pragma: cant happen
+        except OSError as oserr:  # pragma: cant happen
+            if debug.should("patch"):
+                debug.write(f"Couldn't write subprocess .pth file: {oserr}")
             continue
         else:
             pth_files.append(pth_file)
+    if debug.should("patch"):
+        debug.write(f"Subprocess .pth files created: {', '.join(map(str, pth_files)) or '-none-'}")
     return pth_files
