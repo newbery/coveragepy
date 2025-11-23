@@ -114,7 +114,9 @@ KITBIN = .tox/$(KITVER)/bin
 $(KITBIN):
 	tox -q -e $(KITVER) --notest
 
-PIP_COMPILE = uv pip compile -q --universal ${COMPILE_OPTS}
+# Limit to packages that were released more than 10 days ago.
+# https://blog.yossarian.net/2025/11/21/We-should-all-be-using-dependency-cooldowns
+PIP_COMPILE = uv pip compile -q --universal --exclude-newer=$$(date -v-10d +%Y-%m-%d) ${COMPILE_OPTS}
 upgrade: 				## Update the *.pip files with the latest packages satisfying *.in files.
 	$(MAKE) _upgrade COMPILE_OPTS="--upgrade"
 
