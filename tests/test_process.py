@@ -1206,6 +1206,7 @@ class AliasedCommandTest(CoverageTest):
         # "coverage3" works on py3
         cmd = "coverage%d" % sys.version_info[0]
         out = self.run_command(cmd)
+        assert "deprecated" in out
         assert "Code coverage for Python" in out
 
     def test_wrong_alias_doesnt_work(self) -> None:
@@ -1220,6 +1221,7 @@ class AliasedCommandTest(CoverageTest):
         # "coverage-3.9" works on py3.9
         cmd = "coverage-%d.%d" % sys.version_info[:2]
         out = self.run_command(cmd)
+        assert "deprecated" in out
         assert "Code coverage for Python" in out
 
     @pytest.mark.parametrize(

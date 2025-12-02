@@ -116,12 +116,12 @@ setup_args = dict(
         for sp in site.getsitepackages()
     ],
     entry_points={
-        # Install a script as "coverage", and as "coverage3", and as
-        # "coverage-3.7" (or whatever).
         "console_scripts": [
+            # Install a script as "coverage".
             "coverage = coverage.cmdline:main",
-            "coverage%d = coverage.cmdline:main" % sys.version_info[:1],
-            "coverage-%d.%d = coverage.cmdline:main" % sys.version_info[:2],
+            # And as "coverage3", and as "coverage-3.7" (or whatever), but deprecated.
+            "coverage%d = coverage.cmdline:main_deprecated" % sys.version_info[:1],
+            "coverage-%d.%d = coverage.cmdline:main_deprecated" % sys.version_info[:2],
         ],
     },
     extras_require={

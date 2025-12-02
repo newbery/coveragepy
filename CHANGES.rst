@@ -23,7 +23,10 @@ upgrading your version of coverage.py.
 Unreleased
 ----------
 
-Nothing yet.
+- Deprecated: when coverage.py is installed, it creates three command entry
+  points: `coverage`, `coverage3`, and `coverage-3.10` (if installed for Python
+  3.10). The second and third of these are not needed and will eventually be
+  removed.
 
 
 .. start-releases
