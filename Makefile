@@ -192,6 +192,7 @@ sample_html_beta: _sample_cog_html	## Generate sample HTML report for a beta rel
 
 .PHONY: release_version edit_for_release cheats relbranch relcommit1 relcommit2
 .PHONY: kit pypi_upload test_upload kit_local build_kits update_rtd
+.PHONY: _check_github_auth download_kits
 .PHONY: tag bump_version
 
 REPO_OWNER = coveragepy/coveragepy
@@ -216,8 +217,11 @@ relcommit2:				#: Commit the latest sample HTML report (see howto.txt).
 	git add doc/sample_html
 	git commit -am "docs: sample HTML for $$(python setup.py --version)"
 
-kit:					## Make the source distribution and one wheel
+kit:					## Make a source distribution and some wheels.
+	@# Makes sdist and binary wheel for current Python version and platform:
 	python -m build
+	@# Makes py3-none-any wheel:
+	COVERAGE_DISABLE_EXTENSION=1 python -m build --wheel
 
 pypi_upload:				## Upload the built distributions to PyPI.
 	python ci/trigger_action.py $(REPO_OWNER) publish-pypi
@@ -236,14 +240,25 @@ kit_local:
 	# don't go crazy trying to figure out why our new code isn't installing.
 	find ~/Library/Caches/pip/wheels -name 'coverage-*' -delete
 
-build_kits:				## Trigger GitHub to build all the distributions.
+_check_github_auth:			#: Check that we have GITHUB_TOKEN for other commands that need it.
+	@if [[ -z "$$GITHUB_TOKEN" ]]; then \
+		echo 'Missing GITHUB_TOKEN: opvars github'; \
+		exit 1; \
+	fi
+
+build_kits: _check_github_auth		## Trigger GitHub to build all the distributions.
 	python ci/trigger_action.py $(REPO_OWNER) build-kits
+
+download_kits: _check_github_auth	## Download the kits built on GitHub.
+	@# This is only if we need to examine them for debugging.
+	mkdir -p dist
+	gh run download --dir=dist $$(gh run list --workflow=Kits --json=databaseId --jq='.[0].databaseId')
 
 tag:					#: Make a git tag with the version number (see howto.txt).
 	git tag -s -m "Version $$(python setup.py --version)" $$(python setup.py --version)
 	git push --follow-tags
 
-update_rtd:				#: Update ReadTheDocs with the versions to show
+update_rtd:				#: Update ReadTheDocs with the versions to show.
 	python ci/update_rtfd.py $(RTD_PROJECT)
 
 bump_version:				#: Edit sources to bump the version after a release (see howto.txt).
