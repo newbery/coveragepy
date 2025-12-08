@@ -27,14 +27,15 @@ upgrading your version of coverage.py.
 Version 7.13.0 — 2025-12-08
 ---------------------------
 
-- New feature: coverage.py now supports :file:`.coveragerc.toml` configuration
+- Feature: coverage.py now supports :file:`.coveragerc.toml` configuration
   files. These files use TOML syntax and take priority over
   :file:`pyproject.toml` but lower priority than :file:`.coveragerc` files.
   Closes `issue 1643`_ thanks to `Olena Yefymenko <pull 1952_>`_.
 
-- The .pth file we install was done incorrectly and didn't work when using
-  the source wheel (``py3-none-any``).  This is now fixed. Thanks, `Henry
-  Schreiner <pull 2100_>`_.
+- Fix: we now include a permanent .pth file which is installed with the code,
+  fixing `issue 2084`_.  In 7.12.1b1 this was done incorrectly: it didn't work
+  when using the source wheel (``py3-none-any``).  This is now fixed. Thanks,
+  `Henry Schreiner <pull 2100_>`_.
 
 - Deprecated: when coverage.py is installed, it creates three command entry
   points: ``coverage``, ``coverage3``, and ``coverage-3.10`` (if installed for
@@ -45,6 +46,7 @@ Version 7.13.0 — 2025-12-08
 .. _issue 1643: https://github.com/coveragepy/coveragepy/issues/1643
 .. _pull 1952: https://github.com/coveragepy/coveragepy/pull/1952
 .. _pull 2100: https://github.com/coveragepy/coveragepy/pull/2100
+
 
 .. _changes_7-12-1b1:
 
