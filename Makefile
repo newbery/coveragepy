@@ -36,7 +36,7 @@ clean: debug_clean _clean_platform	## Remove artifacts of test execution, instal
 	@rm -f coverage/*,cover
 	@rm -f MANIFEST
 	@rm -f .coverage .coverage.* .metacov*
-	@rm -f coverage.xml coverage.json
+	@rm -f coverage.xml coverage.json coverage.lcov
 	@rm -f .tox/*/lib/*/site-packages/a0_metacov.pth
 	@rm -f */.coverage */*/.coverage */*/*/.coverage */*/*/*/.coverage */*/*/*/*/.coverage */*/*/*/*/*/.coverage
 	@rm -f tests/covmain.zip tests/zipmods.zip tests/zip1.zip
