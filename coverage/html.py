@@ -795,10 +795,10 @@ class IncrementalChecker:
         clear the data so that all files are regenerated.
 
         """
-        m = Hasher()
+        h = Hasher()
         for d in data:
-            m.update(d)
-        these_globals = m.hexdigest()
+            h.update(d)
+        these_globals = h.hexdigest()
         if self.globals != these_globals:
             self._reset()
             self.globals = these_globals
@@ -813,10 +813,10 @@ class IncrementalChecker:
         the HTML page.
 
         """
-        m = Hasher()
-        m.update(fr.source().encode("utf-8"))
-        add_data_to_hash(data, fr.filename, m)
-        this_hash = m.hexdigest()
+        h = Hasher()
+        h.update(fr.source().encode("utf-8"))
+        add_data_to_hash(data, fr.filename, h)
+        this_hash = h.hexdigest()
 
         file_info = self.files.setdefault(rootname, FileInfo())
 
