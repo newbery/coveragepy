@@ -23,7 +23,9 @@ upgrading your version of coverage.py.
 Unreleased
 ----------
 
-Nothing yet.
+- Fix: coverage.py uses a more disciplined approach to detecting where
+  third-party code is installed, and avoids measuring it. This shouldn't change
+  any behavior. If you find that it does, please get in touch.
 
 
 .. start-releases
