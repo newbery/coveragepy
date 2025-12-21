@@ -53,6 +53,7 @@ class HasherTest(CoverageTest):
     @example(({(1, 2), (3, 4), (5, 6)}, {(1, 2)}))
     # https://github.com/coveragepy/coveragepy/issues/2108
     @example((["", []], [".<class 'list'>"]))
+    @example((["5", []], [".<class 'list'>"]))
     @given(nested_data_strategies.flatmap(lambda s: st.tuples(s, s)))
     def test_equality_matches_hash(self, data_pair: tuple[Any, Any]) -> None:
         data1, data2 = data_pair
