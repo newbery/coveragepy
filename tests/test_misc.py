@@ -39,7 +39,7 @@ class HasherTest(CoverageTest):
         assert numset1 == numset2
         assert list(numset1) != list(numset2)
 
-    # Use nested_data_schema to generate data schemas, then use it twice in
+    # Use nested_data_strategies to generate data schemas, then use it twice in
     # the test to get two chunks of data with the "same shape" but different
     # data.
     @example(([1, None, 2, None], [1, 2]))
@@ -62,6 +62,8 @@ class HasherTest(CoverageTest):
             assert h1.hexdigest() == h2.hexdigest()
             assert h1.digest() == h2.digest()
         else:
+            # Strictly speaking, unequal data can produce equal hashes, but
+            # it's very unlikely, so test for it anyway.
             assert h1.hexdigest() != h2.hexdigest()
             assert h1.digest() != h2.digest()
 
