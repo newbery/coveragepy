@@ -38,10 +38,19 @@ A few types of information are available:
     Usage: coverage debug <topic>
 
     Display information about the internals of coverage.py, for diagnosing
-    problems. Topics are: 'data [filenames]' to summarize data files; 'sys' to
-    show installation information; 'config' to show the configuration; 'premain'
-    to show what is calling coverage; 'pybehave' to show internal flags describing
-    Python behavior; 'sqlite' to show SQLite compilation options.
+    problems. Topics are:
+
+    'config' to show configuration settings.
+
+    'data [filenames]' to summarize data files.
+
+    'premain' to show what is calling coverage.
+
+    'pybehave' to show internal flags describing Python behavior.
+
+    'sqlite' to show SQLite compilation options.
+
+    'sys' to show installation information.
 
     Options:
       --debug=OPTS     Debug options, separated by commas. [env: COVERAGE_DEBUG]
@@ -49,7 +58,7 @@ A few types of information are available:
       --rcfile=RCFILE  Specify configuration file. By default '.coveragerc',
                        'setup.cfg', 'tox.ini', and 'pyproject.toml' are tried.
                        [env: COVERAGE_RCFILE]
-.. [[[end]]] (sum: 8K0+009GCf)
+.. [[[end]]] (sum: 8u/b2hqa5I)
 
 
 .. _cmd_run_debug:
