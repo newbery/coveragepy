@@ -6,15 +6,17 @@
 .DEFAULT_GOAL := help
 
 
-##@ Utilities
+### Utilities
 
 .PHONY: help _clean_platform debug_clean clean_platform clean sterile venv install
 
 help:					## Show this help.
 	@# Adapted from https://www.thapaliya.com/en/writings/well-documented-makefiles/
-	@# Targets with '##' comments are shown.
+	@# Markdown-inspired syntax is used in comments to print help.
+	@# Lines starting with '###' are section headers.
+	@# Targets with '#- ' comments are shown.
 	@echo Available targets:
-	@awk -F ':.*##' '/^[^: ]+:.*##/{printf "  \033[1m%-20s\033[m %s\n",$$1,$$2} /^##@/{printf "\n%s\n",substr($$0,5)}' $(MAKEFILE_LIST)
+	@awk -F ':.*#-' '/^[^: ]+:.*#-/{printf "  \033[1m%-20s\033[m %s\n",$$1,$$2} /^###/{printf "\n%s\n",substr($$0,5)}' $(MAKEFILE_LIST)
 
 # For managing development tooling, use uv if it's available, otherwise pip.
 HAS_UV := $(shell command -v uv 2>/dev/null)
@@ -39,10 +41,10 @@ _clean_platform:
 	@rm -f *.pyo */*.pyo */*/*.pyo */*/*/*.pyo */*/*/*/*.pyo */*/*/*/*/*.pyo
 	@rm -f .DS_Store */.DS_Store */*/.DS_Store */*/*/.DS_Store */*/*/*/.DS_Store
 
-debug_clean:				## Delete various debugging artifacts.
+debug_clean:				#- Delete various debugging artifacts.
 	@rm -rf /tmp/dis /tmp/foo.out $$COVERAGE_DEBUG_FILE
 
-clean: debug_clean _clean_platform	## Remove artifacts of test execution, installation, etc.
+clean: debug_clean _clean_platform	#- Remove artifacts of test execution, installation, etc.
 	@echo "Cleaning..."
 	@-$(UNINSTALL) -q coverage
 	@mkdir -p build	# so the chmod won't fail if build doesn't exist
@@ -63,50 +65,50 @@ clean: debug_clean _clean_platform	## Remove artifacts of test execution, instal
 	@rm -rf tests/actual
 	@-make -C tests/gold/html clean
 
-sterile: clean				## Remove all non-controlled content, even if expensive.
+sterile: clean				#- Remove all non-controlled content, even if expensive.
 	rm -rf .venv
 	rm -rf .tox
 	rm -f cheats.txt
 
-venv: .venv				## Create a virtualenv in .venv.
+venv: .venv				#- Create a virtualenv in .venv.
 .venv:
 	$(VENV)
 
-install: venv				## Install the developer tools.
+install: venv				#- Install the developer tools.
 	$(INSTALL_R) requirements/dev.pip
 
 
-##@ Tests and quality checks
+### Tests and quality checks
 
 .PHONY: lint mypy precommit quality test
 
-lint:					## Run linters and checkers.
+lint:					#- Run linters and checkers.
 	tox -q -e lint
 
-mypy:					## Run the type checker.
+mypy:					#- Run the type checker.
 	tox -q -e mypy
 
-precommit:				## Run the pre-commit checks.
+precommit:				#- Run the pre-commit checks.
 	PYTHONWARNDEFAULTENCODING= pre-commit run --all-files
 
-quality: lint mypy precommit		## Run all the quality checks.
+quality: lint mypy precommit		#- Run all the quality checks.
 
-test:					## Run the test suite.
+test:					#- Run the test suite.
 	tox -q -m py
 
-##@ Metacov: coverage measurement of coverage.py itself
+### Metacov: coverage measurement of coverage.py itself
 # See metacov.ini for details.
 
 .PHONY: metacov metahtml
 
-metacov:				## Run meta-coverage, measuring ourself.
+metacov:				#- Run meta-coverage, measuring ourself.
 	COVERAGE_COVERAGE=yes tox -q $(ARGS)
 
-metahtml:				## Produce meta-coverage HTML reports.
+metahtml:				#- Produce meta-coverage HTML reports.
 	tox exec -q $(ARGS) -- python3 igor.py combine_html
 
 
-##@ Requirements management
+### Requirements management
 
 # When updating requirements, a few rules to follow:
 #
@@ -131,10 +133,10 @@ $(KITBIN):
 # Limit to packages that were released more than 10 days ago.
 # https://blog.yossarian.net/2025/11/21/We-should-all-be-using-dependency-cooldowns
 PIP_COMPILE = uv pip compile -q --universal --exclude-newer=$$(date -v-10d +%Y-%m-%d) ${COMPILE_OPTS}
-upgrade: 				## Update the *.pip files with the latest packages satisfying *.in files.
+upgrade: 				#- Update the *.pip files with the latest packages satisfying *.in files.
 	$(MAKE) _upgrade COMPILE_OPTS="--upgrade"
 
-upgrade_one:				## Update the *.pip files for one package. `make upgrade_one package=...`
+upgrade_one:				#- Update the *.pip files for one package. `make upgrade_one package=...`
 	@test -n "$(package)" || { echo "\nUsage: make upgrade-one package=...\n"; exit 1; }
 	$(MAKE) _upgrade COMPILE_OPTS="--upgrade-package $(package)"
 
@@ -150,7 +152,7 @@ _upgrade: $(DOCBIN) $(KITBIN)
 	$(PIP_COMPILE) -p $(DOCBIN)/python3 -o doc/requirements.pip doc/requirements.in
 	PYTHONWARNDEFAULTENCODING= pre-commit autoupdate
 
-diff_upgrade:				## Summarize the last `make upgrade`.
+diff_upgrade:				#- Summarize the last `make upgrade`.
 	@# The sort flags sort by the package name first, then by the -/+, and
 	@# sort by version numbers, so we get a summary with lines like this:
 	@#	-bashlex==0.16
@@ -160,25 +162,25 @@ diff_upgrade:				## Summarize the last `make upgrade`.
 	@git diff -U0 | grep -v '^@' | grep == | sort -k1.2,1.99 -k1.1,1.1r -u -V
 
 
-##@ Pre-builds for prepping the code
+### Pre-builds for prepping the code
 
 .PHONY: css workflows prebuild
 
 CSS = coverage/htmlfiles/style.css
 SCSS = coverage/htmlfiles/style.scss
 
-css: $(CSS)				## Compile .scss into .css.
+css: $(CSS)				#- Compile .scss into .css.
 $(CSS): $(SCSS)
 	pysassc --style=compact $(SCSS) $@
 	cp $@ tests/gold/html/styled
 
-workflows:				## Run cog on the workflows to keep them up-to-date.
+workflows:				#- Run cog on the workflows to keep them up-to-date.
 	python -m cogapp -crP .github/workflows/*.yml
 
-prebuild: css workflows cogdoc		## One command for all source prep.
+prebuild: css workflows cogdoc		#- One command for all source prep.
 
 
-##@ Sample HTML reports
+### Sample HTML reports
 
 .PHONY: _sample_cog_html sample_html sample_html_beta
 
@@ -190,18 +192,18 @@ _sample_cog_html: clean
 		coverage combine; \
 		coverage html
 
-sample_html: _sample_cog_html		## Generate sample HTML report.
+sample_html: _sample_cog_html		#- Generate sample HTML report.
 	rm -f doc/sample_html/*.*
 	cp -r ~/cog/htmlcov/ doc/sample_html/
 	rm doc/sample_html/.gitignore
 
-sample_html_beta: _sample_cog_html	## Generate sample HTML report for a beta release.
+sample_html_beta: _sample_cog_html	#- Generate sample HTML report for a beta release.
 	rm -f doc/sample_html_beta/*.*
 	cp -r ~/cog/htmlcov/ doc/sample_html_beta/
 	rm doc/sample_html_beta/.gitignore
 
 
-##@ Kitting: making releases
+### Kitting: making releases
 
 .PHONY: release_version edit_for_release cheats relbranch relcommit1 relcommit2
 .PHONY: kit pypi_upload test_upload build_kits update_rtd
@@ -211,68 +213,68 @@ sample_html_beta: _sample_cog_html	## Generate sample HTML report for a beta rel
 REPO_OWNER = coveragepy/coveragepy
 RTD_PROJECT = coverage
 
-release_version:			#: Update the version for a release.
+release_version:			# Update the version for a release.
 	python igor.py release_version
 
-edit_for_release:			#: Edit sources to insert release facts (see howto.txt).
+edit_for_release:			# Edit sources to insert release facts (see howto.txt).
 	python igor.py edit_for_release
 
-cheats:					## Create some useful snippets for releasing.
+cheats:					#- Create some useful snippets for releasing.
 	python igor.py cheats | tee cheats.txt
 
-relbranch:				#: Create the branch for releasing (see howto.txt).
+relbranch:				# Create the branch for releasing (see howto.txt).
 	git switch -c nedbat/release-$$(date +%Y%m%d-%H%M%S)
 
-relcommit1:				#: Commit the first release changes (see howto.txt).
+relcommit1:				# Commit the first release changes (see howto.txt).
 	git commit -am "docs: prep for $$(python setup.py --version)"
 
-relcommit2:				#: Commit the latest sample HTML report (see howto.txt).
+relcommit2:				# Commit the latest sample HTML report (see howto.txt).
 	git add doc/sample_html
 	git commit -am "docs: sample HTML for $$(python setup.py --version)"
 
-kit:					## Make a source distribution and some wheels.
+kit:					#- Make a source distribution and some wheels.
 	@# Makes sdist and binary wheel for current Python version and platform:
 	python -m build
 	@# Makes py3-none-any wheel:
 	COVERAGE_DISABLE_EXTENSION=1 python -m build --wheel
 
-pypi_upload:				## Upload the built distributions to PyPI.
+pypi_upload:				#- Upload the built distributions to PyPI.
 	python ci/trigger_action.py $(REPO_OWNER) publish-pypi
 	@echo "Use that^ URL to approve the upload"
 
-test_upload:				## Upload the distributions to PyPI's testing server.
+test_upload:				#- Upload the distributions to PyPI's testing server.
 	python ci/trigger_action.py $(REPO_OWNER) publish-testpypi
 	@echo "Use that^ URL to approve the upload"
 
-_check_github_auth:			#: Check that we have GITHUB_TOKEN for other commands that need it.
+_check_github_auth:			# Check that we have GITHUB_TOKEN for other commands that need it.
 	@if [[ -z "$$GITHUB_TOKEN" ]]; then \
 		echo 'Missing GITHUB_TOKEN: opvars github'; \
 		exit 1; \
 	fi
 
-build_kits: _check_github_auth		## Trigger GitHub to build all the distributions.
+build_kits: _check_github_auth		#- Trigger GitHub to build all the distributions.
 	python ci/trigger_action.py $(REPO_OWNER) build-kits
 
-download_kits: _check_github_auth	## Download the kits built on GitHub.
+download_kits: _check_github_auth	#- Download the kits built on GitHub.
 	@# This is only if we need to examine them for debugging.
 	mkdir -p dist
 	gh run download --dir=dist $$(gh run list --workflow=Kits --json=databaseId --jq='.[0].databaseId')
 
-tag:					#: Make a git tag with the version number (see howto.txt).
+tag:					# Make a git tag with the version number (see howto.txt).
 	git tag -s -m "Version $$(python setup.py --version)" $$(python setup.py --version)
 	git push --follow-tags
 
-update_rtd:				#: Update ReadTheDocs with the versions to show.
+update_rtd:				# Update ReadTheDocs with the versions to show.
 	python ci/update_rtfd.py $(RTD_PROJECT)
 
-bump_version:				#: Edit sources to bump the version after a release (see howto.txt).
+bump_version:				# Edit sources to bump the version after a release (see howto.txt).
 	git switch -c nedbat/bump-version
 	python igor.py bump_version
 	git commit -a -m "build: bump version to $$(python setup.py --version | sed 's/a.*//')"
 	git push -u origin @
 
 
-##@ Documentation
+### Documentation
 
 .PHONY: cogdoc dochtml docdev docspell
 
@@ -283,22 +285,22 @@ SPHINXAUTOBUILD = $(DOCBIN)/sphinx-autobuild --port 9876 --ignore '.git/**' --op
 $(DOCBIN):
 	tox -q -e doc --notest
 
-cogdoc: $(DOCBIN)			## Run docs through cog.
+cogdoc: $(DOCBIN)			#- Run docs through cog.
 	$(DOCBIN)/python -m cogapp -crP --verbosity=1 doc/*.rst doc/*/*.rst
 
-dochtml: cogdoc $(DOCBIN)		## Build the docs HTML output.
+dochtml: cogdoc $(DOCBIN)		#- Build the docs HTML output.
 	$(SPHINXBUILD) -b html doc doc/_build/html
 	@echo "Start at: doc/_build/html/index.html"
 
-docdev: dochtml				## Build docs, and auto-watch for changes.
+docdev: dochtml				#- Build docs, and auto-watch for changes.
 	PATH=$(DOCBIN):$(PATH) $(SPHINXAUTOBUILD) -b html doc doc/_build/html
 
-docspell: $(DOCBIN)			## Run the spell checker on the docs.
+docspell: $(DOCBIN)			#- Run the spell checker on the docs.
 	# Very mac-specific...
 	PYENCHANT_LIBRARY_PATH=/opt/homebrew/lib/libenchant-2.dylib $(SPHINXBUILD) -b spelling doc doc/_spell
 
 
-##@ Publishing docs
+### Publishing docs
 
 .PHONY: publish publishbeta github_releases comment_on_fixes
 
@@ -306,7 +308,7 @@ WEBHOME = ~/web/stellated
 WEBSAMPLE = $(WEBHOME)/files/sample_coverage_html
 WEBSAMPLEBETA = $(WEBHOME)/files/sample_coverage_html_beta
 
-publish:				## Publish the sample HTML report.
+publish:				#- Publish the sample HTML report.
 	rm -f $(WEBSAMPLE)/*.*
 	mkdir -p $(WEBSAMPLE)
 	cp doc/sample_html/*.* $(WEBSAMPLE)
@@ -329,8 +331,8 @@ $(SCRIV_SOURCE): $(CHANGES_MD)
 	@# Replace sphinx references with published URLs.
 	sed -r -e 's@]\(([a-zA-Z0-9_]+)\.rst#([^)]+)\)@](https://coverage.readthedocs.io/en/latest/\1.html#\2)@g' < tmp/trimmed.md > $(SCRIV_SOURCE)
 
-github_releases: $(SCRIV_SOURCE)	## Update GitHub releases.
+github_releases: $(SCRIV_SOURCE)	#- Update GitHub releases.
 	$(DOCBIN)/python -m scriv github-release --all
 
-comment_on_fixes: $(SCRIV_SOURCE)	## Add a comment to issues that were fixed.
+comment_on_fixes: $(SCRIV_SOURCE)	#- Add a comment to issues that were fixed.
 	python ci/comment_on_fixes.py $(REPO_OWNER)
