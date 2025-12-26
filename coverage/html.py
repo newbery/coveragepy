@@ -34,7 +34,7 @@ from coverage.misc import (
 from coverage.report_core import get_analysis_to_report
 from coverage.results import Analysis, AnalysisNarrower, Numbers
 from coverage.templite import Templite
-from coverage.types import TLineNo, TMorf
+from coverage.types import TLineNo, TMorfs
 from coverage.version import __url__
 
 if TYPE_CHECKING:
@@ -351,7 +351,7 @@ class HtmlReporter:
             skipped_empty_count=0,
         )
 
-    def report(self, morfs: Iterable[TMorf] | None) -> float:
+    def report(self, morfs: TMorfs) -> float:
         """Generate an HTML report for `morfs`.
 
         `morfs` is a list of modules or file names.

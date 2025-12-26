@@ -473,7 +473,7 @@ class MultiprocessingTest(CoverageTest):
         self,
         code: str,
         expected_out: str | None,
-        the_module: ModuleType,
+        the_module: ModuleType | None,
         nprocs: int,
         start_method: str,
         concurrency: str = "multiprocessing",

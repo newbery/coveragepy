@@ -166,6 +166,7 @@ class TPluginConfig(Protocol):
 ## Parsing
 
 TMorf = ModuleType | str
+TMorfs = TMorf | Iterable[TMorf] | None
 
 TSourceTokenLines = Iterable[list[tuple[str, str]]]
 

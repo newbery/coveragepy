@@ -14,7 +14,7 @@ from typing import IO, TYPE_CHECKING, Any
 from coverage import __version__
 from coverage.report_core import get_analysis_to_report
 from coverage.results import Analysis, AnalysisNarrower, Numbers
-from coverage.types import TLineNo, TMorf
+from coverage.types import TLineNo, TMorfs
 
 if TYPE_CHECKING:
     from coverage import Coverage
@@ -66,7 +66,7 @@ class JsonReporter:
             "percent_branches_covered_display": nums.pc_branches_str,
         }
 
-    def report(self, morfs: Iterable[TMorf] | None, outfile: IO[str]) -> float:
+    def report(self, morfs: TMorfs, outfile: IO[str]) -> float:
         """Generate a json report for `morfs`.
 
         `morfs` is a list of modules or file names.
