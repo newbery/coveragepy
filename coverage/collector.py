@@ -283,6 +283,7 @@ class Collector:
     # install this as a trace function, and the first time it's called, it does
     # the real trace installation.
     #
+    # PYVERSIONS
     # New in 3.12: threading.settrace_all_threads: https://github.com/python/cpython/pull/96681
 
     def _installation_trace(self, frame: FrameType, event: str, arg: Any) -> TTraceFn | None:
